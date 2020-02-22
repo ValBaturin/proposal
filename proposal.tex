@@ -3,6 +3,7 @@
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{anyfontsize}
 \usepackage{cite}
+\usepackage{url}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
 \usepackage{graphicx}
@@ -25,9 +26,7 @@ val@baturin.me}
 \maketitle
 
 \begin{abstract}
-Clickhouse by its nature is a distributed application which means
-that several instances of the same process are spawned on different nodes.
-Coordination is the key to consistancy. The paper takes Clickhouse on a
+The paper takes Clickhouse on a
 new level by adding a new engine for managing replicated tables in the herely
 proposed Replicated Database Engine which eases coordination efforts for end users.
 \end{abstract}
@@ -38,7 +37,28 @@ database, replication
 
 \section{Introduction}
 
-It was 30? years since Berkley invented database management system.
+Clickhouse\cite{clickhousedocs} by its nature is a distributed application which means
+that several instances of the same application are spawned
+on different nodes. The main reason to have Clickhouse up and running is to
+store and analyse big chuncks of data. Altough, it is not necessary to actually
+have more that one node running, the problem of data availablity might only be solved
+using several nodes. In order to have data available in a case of node fail,
+in particular disk fail, the only way to not lose data is to have a copy of it
+somewhere. It's a common practice to fully restore all of the data
+from out of service disks by using copies. The process of copying
+data to somewhere else and use it in case of a need is called data replication.
+
+Data replication has its merits, however it makes application which supports it more
+complex in many ways.
+An example of a complication is a node coordination, which will be discussed later.
+
+From the user point of view Clickhouse is a database managment system.
+Users might not know to exactly data is processed and stored as long as it works.
+In spite of that, users need to be sure that their data is stored somewhere
+reliably and in a case of emergency, such as a disk failure, the data will be available later
+and not lost.
+
+I was 30? years since Berkley invented database management system.
 The first implementation was a huge step forward in software engineering field.
 It allowed engineers to care less about data storage and more about actual
 applications that use its data. Nowadays computers produce way more data
@@ -46,18 +66,19 @@ which is needed to be stored and analysed. The data became important on its own
 and sometimes even more important that applications that use that data.
 The huge fault would be to lose the precios bytes and a lot of effort put into
 saving the data no matter what. One of the unfortunate matters might be that a disk fails.
-It's a common problem for data centers and the only way to fully restore all of the data
-from out of service disk is to have somewhere a copy of the data. The process of copying
-data to somewhere else and use it in case of a need is called data replication.
-Unlike back ups, data replication assumes a fast restore of the data, however,
-essentially two process are all alike.
 
-Here we're talking about data replication in clickhouse in parlicular.
+Here we're talking about data replication in clickhouse\cite{clickhouse} in parlicular.
 Clickhouse differs from its ancessors that it was designed with big data in mind.
 Therefore multiple nodes of the same DBMS can be spawn. 
 
-
 \section{Literature Review}
+In the world of distributing computing node coordination was
+always a severe problem. The problem of node coordination reduces to a consensus
+problem. The consesus problem is solved using concensus protocol. The first consensus
+protocol which was proven and explained is Paxos
+
+Clickhouse relies on zookeeper
+
 The problem of service coordination takes its roots in the lamport studies.
 
 The first fundamental attempt to solve fault tolerance for distributed systems was
@@ -74,15 +95,13 @@ performance\cite{zap}.
 \section{Methods}
 Implementation of a new database engine for clickhouse requires understanding of
 the current code base related to the engines. By the date, it has several different
-engine for different needs of users. The new replicated database engine must
+engines for different needs of users. The new replicated database engine must
 obey the current requirements for database interface and bring the feature of ease
 the management of replicated tables created in the newly proposed engine.
-The proposed software update must not break the current engines and other loosly-coupled
-components of the code base.
+
 In order to be sure the following patch is indeed reliable and doesn't break anything,
 software testing is used. The current test suite of clickhouse must not be
 deminished and even more it must be extentioned to cover new engine testing.
-The code for integration tests and optionally other kinds of tests must be written.
 
 \section{Results}
 Final implementation of the replicated database engine expected to be compilable
@@ -92,6 +111,9 @@ on each node, and using the newly proposed engine create replicated tables such 
 one table will be replicated on the given cluster of nodes. The cluster of nodes
 is defined by the end user. The cluster must be a subset of nodes running the replicated 
 databases of a common prefix.
+The proposed software update must not break the current engines and other loosly-coupled
+components of the code base.
+The code for integration tests and optionally other kinds of tests must be written.
 
 
 \section{Conclusion}
@@ -300,6 +322,10 @@ needed efforts for managing replicated tables in clickhouse.
 %citation first, followed by the original foreign-language citation \cite{b6}.
 
 \begin{thebibliography}{00}
+\bibitem{clickhousedocs}
+\emph{Clickhouse Documentation}. Clickhouse.tech, \url{https://clickhouse.tech/docs/en/}
+\bibitem{clickhouse}
+\emph{ClickHouse/ClickHouse: ClickHouse is a free analytics DBMS for big data}. GitHub, \url{https://github.com/ClickHouse/ClickHouse}
 \bibitem{paxos}
 Leslie Lamport, \emph{"Paxos Made Simple"}. 2001.
 \bibitem{zookeeper}
