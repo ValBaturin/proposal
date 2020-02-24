@@ -106,12 +106,31 @@ engines for different needs of users. The new replicated database engine must
 obey the current requirements for database interface and bring the feature of ease
 the management of replicated tables created in a newly proposed engine instance.
 
+Let's suppose there's a need to instanciate a replicated database using
+Replicated Database Engine in Clickhouse. Since there's no point of having replication
+if there's only one node available, it's reasonable to assume that several nodes are
+available and will be involved in the process. Firstly, it must be specified that
+a database is replicated by choosing the replicated engine on creation. Secondly,
+to allow flexablity, a user might want to choose which Zookeeper path is used for a
+replicated instance. Thirdly, each of replicas must be distinguishable from another.
+It can be accomplished by using different suffixes in a Zookeeper path. The base prefix
+must be the same to diffirentiate from other replicated engine instances.
+Such an implementation strategy would allow to create replicas ad hoc and avoid
+predefined structure.
+
+Each of replicated tables in the engine will be created and stored on each replica.
+In a case of node failure, it would possible to restore all data, because replicated
+table engine keeps track of them in zookeeper.
+
+Compared to table engines, database engines keep track of all tables created inside an
+instance, that data inside tables. If a node of the database engine fails, it would
+be possible to restore all of the data it had before no matter which tables belonged
+to the node. Even more, the data will be up to date and syncronized through all the tables'
+replicas. To implement all of that, the proposed engine will be sufficient.
+
 In order to be sure the following patch is indeed reliable and doesn't break anything,
 software testing is used. The current test suite of clickhouse must not be
-deminished and even more it must be extentioned to cover new engine testing.
-
-Clickhouse is written in C++ language. Therefore, the new engine for Clickhouse
-must be written in the same language.
+deminished and even more it must be extentioned to cover a new engine testing.
 
 To make interaction with the code base more
 rapid, ctags software might be used. Ctags produces an index file which is supported
@@ -119,24 +138,43 @@ by most text editors. Any text editor would be sutable for writing code for Clic
 
 The primary target of compilation is Linux family of operating systems.
 In order to avoid cross-compilation, the one of the mentioned operating systems
-is needed to be installed.
+is needed to be installed and used as a development tool. 
+
+As one of the any Clickhouse improvments, the one must be incremental and based
+on the latest version of the source code. Clickhouse as an open source project and it
+interacts with its contributers using git. Git project is hosted on GitHub, and
+GitHub features such as Issues and Pull Requests and used. To interect with other
+contributers and maintainers of the Clickhouse Project, comments in issues and
+pull requests must be use as a communation tool.
 
 \section{Results}
-Final implementation of the replicated database engine expected to be compilable
-and corrent. The end user of the software must be able to create a replicated
+Clickhouse is written in C++ language. Therefore, the new engine for Clickhouse
+must be written in the same language.
+
+Final implementation of the Replicated Database Engine expected to be compilable
+and corrent.
+
+The changes to the source code must be in a form of pull request. All critics and suggestions
+must be addressed and discussed if it is needed.
+
+The proposed software update must not break the current engines and other loosly-coupled
+components of the code base. Futhermore, it must not break any part of the software.
+
+The code for integration, functional, and unit tests must be written.
+Performance tests are optional, however the patch must not result in decreasing
+performance of the current engines and Clickhouse operaton in general.
+
+The end user of the software must be able to create a replicated
 database instances on different nodes and with a zookepeer path of a common prefix
 on each node, and using the newly proposed engine create replicated tables such that
 one table will be replicated on the given cluster of nodes. The cluster of nodes
 is defined by the end user. The cluster must be a subset of nodes running the replicated 
 databases of a common prefix.
-The proposed software update must not break the current engines and other loosly-coupled
-components of the code base.
-The code for integration tests and optionally other kinds of tests must be written.
-
 
 \section{Conclusion}
 Proposed implementation of the engine allows to significantly(up to none) eliminate
 needed efforts for managing replicated tables in clickhouse.
+
 
 %\section{Ease of Use}
 %
