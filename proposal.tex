@@ -26,13 +26,20 @@ val@baturin.me}
 \maketitle
 
 \begin{abstract}
-The paper takes Clickhouse on a
-new level by adding a new engine for managing replicated tables in the herely
-proposed Replicated Database Engine which eases coordination efforts for end users.
+Nowadays it's important to have a reliable place to store data.
+However, even the most reliable place on Earth can fail.
+Clickhouse database management system is a choice of many applications
+to be its storage layer. And in Clickhouse there's a way to replicate data
+by using a replication table engine. The replication is handled just fine,
+although restoring the data must be done manually.
+The paper proposes an implementation of a database engine which will
+keep track of all replicas and make recovery as seamless as possible.
+The new database engine relies on Zookeeper as a synchronization mechanism and utilizes replicated
+tables functionality.
 \end{abstract}
 
 \begin{IEEEkeywords}
-database, replication
+database, Clickhouse, Zookeeper, replication
 \end{IEEEkeywords}
 
 \section{Introduction}
