@@ -79,7 +79,7 @@ always a severe problem. The problem reduces to a consensus
 problem, which can be solved using concensus protocol. The first consensus
 protocol which was proven and explained is Paxos\cite{paxos}.
 
-However, there's an edge case for paxos consensus protocol which in its essense is used for
+However, there's an edge case for Paxos consensus protocol which in its essense is used for
 state machine replication which requeirs a workaround\cite{zap}. Unfortunatly, the workaround
 results in poor performance. 
 
@@ -91,9 +91,9 @@ it's possible to use it as a node coordination mechanism.
 
 Zookeeper API allows one to create nodes (znodes) in a tree. A node might contain some data.
 Tree structure reminds a file system, with nodes being similar to files.
-Despite of being similar to a distributed file system, Zookeeper has diffent purpose.
-First of all, it's a service for coordinating process of distributed applications.
-This design decision was taken becouse of several reasons. Using file system like
+Despite of being similar to a distributed file system, Zookeeper has a diffent purpose.
+First of all, it's a service for coordinating processes of distributed applications.
+This design decision was taken because of several reasons. Using a file system like
 structure it's easier to serve different applications having just only one Zookeeper cluster
 available. Furthermore, the one application can use Zookeeper sub path in a tree
 and inside the sub path have its own sub pathes for different needs.
@@ -144,13 +144,14 @@ In order to be sure the following patch is indeed reliable and doesn't break any
 software testing is used. The current test suite of clickhouse must not be
 deminished and even more it must be extentioned to cover a new engine testing.
 
-To make interaction with the code base more
+To make navigation within the code base more
 rapid, ctags software might be used. Ctags produces an index file which is supported
-by most text editors. Any text editor would be sutable for writing code for Clickhouse.
+by most text editors.
+Any text editor would be sutable for writing code for Clickhouse.
 
 The primary target of compilation is Linux family of operating systems.
 In order to avoid cross-compilation, the one of the mentioned operating systems
-is needed to be installed and used as a development tool. 
+is needed to be installed and used as a development tool. GCC compiler for C++ should be used.
 
 As one of the any Clickhouse improvments, the one must be incremental and based
 on the latest version of the source code. Clickhouse as an open source project and it
@@ -167,7 +168,8 @@ Final implementation of the Replicated Database Engine expected to be compilable
 and corrent.
 
 The changes to the source code must be in a form of pull request. All critics and suggestions
-must be addressed and discussed if it is needed.
+must be addressed and discussed if it is needed. The style guide must be the same as
+the one used in Clickhouse project.
 
 The proposed software update must not break the current engines and other loosly-coupled
 components of the code base. Futhermore, it must not break any part of the software.
@@ -185,7 +187,8 @@ databases of a common prefix.
 
 \section{Conclusion}
 Proposed implementation of the engine allows to eliminate
-currently needed efforts from users for managing replicated tables in Clickhouse.
+currently needed efforts for users to manage replicated tables in Clickhouse,
+and improve user experience.
 
 Proposed methods allow to implement the engine so that it would fit the current
 code base.
