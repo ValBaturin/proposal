@@ -46,62 +46,80 @@ using several nodes. In order to have data available in a case of node fail,
 in particular disk fail, the only way to not lose data is to have a copy of it
 somewhere. It's a common practice to fully restore all of the data
 from out of service disks by using copies. The process of copying
-data to somewhere else and use it in case of a need is called data replication.
+data to somewhere else and use it in a case of a need is called data replication.
 
 Data replication has its merits, however it makes application which supports it more
 complex in many ways.
 An example of a complication is a node coordination, which will be discussed later.
 
 From the user point of view Clickhouse is a database managment system.
-Users might not know to exactly data is processed and stored as long as it works.
+Users might not know to exactly data is processed and stored as long as they have
+an access to it.
 In spite of that, users need to be sure that their data is stored somewhere
-reliably and in a case of emergency, such as a disk failure, the data will be available later
-and not lost.
+reliably and in a case of emergency, such as a disk failure, and the data will be
+available later and not lost.
 
-I was 30? years since Berkley invented database management system.
-The first implementation was a huge step forward in software engineering field.
-It allowed engineers to care less about data storage and more about actual
-applications that use its data. Nowadays computers produce way more data
-which is needed to be stored and analysed. The data became important on its own
-and sometimes even more important that applications that use that data.
-The huge fault would be to lose the precios bytes and a lot of effort put into
-saving the data no matter what. One of the unfortunate matters might be that a disk fails.
+Speaking of replication, the actual bytes that have to be replicated are incapsulated
+by several layers of abstractions from disk drivers to client CLI with a replicate
+keyword supported.
 
-Here we're talking about data replication in clickhouse\cite{clickhouse} in parlicular.
-Clickhouse differs from its ancessors that it was designed with big data in mind.
-Therefore multiple nodes of the same DBMS can be spawn. 
+Clickhouse handles replication by using replicated tree family of table engines.
+However, it's still problematic for users to maintain replicas. One of the
+main disadvantages of such an approach is no automatic recovery after a node fail exists.
+Users have to manualy restore replicas which is a redundant work.
+
+This paper proposes a solution for Clickhouse replication problem by using Replicated
+Database Engine. Compared to table engines, database engines are a higher level abstraction
+of an actual data and responsible for storing a metadata of tables either persistantly or
+in-memory. Managing the same database from different nodes requires thought-out node coordination.
 
 \section{Literature Review}
 In the world of distributing computing node coordination was
-always a severe problem. The problem of node coordination reduces to a consensus
-problem. The consesus problem is solved using concensus protocol. The first consensus
-protocol which was proven and explained is Paxos
+always a severe problem. The problem reduces to a consensus
+problem, which can be solved using concensus protocol. The first consensus
+protocol which was proven and explained is Paxos\cite{paxos}.
 
-Clickhouse relies on zookeeper
+However, there's an edge case for paxos consensus protocol which in its essense is used for
+state machine replication which requeirs a workaround\cite{zap}. Unfortunatly, the workaround
+results in poor performance. 
 
-The problem of service coordination takes its roots in the lamport studies.
+The only sutable solution to still maintain performace is to use different approach
+rather that state machine replication. One of the discovered alternatives is to use
+Zap protocol which is desinged for primary-backup systems. Such protocol is used in
+Zookeeper\cite{zookeeper}. Luckily, Zookeeper is supported by Clickhouse, and therefore
+it's possible to use it as a node coordination mechanism.
 
-The first fundamental attempt to solve fault tolerance for distributed systems was
-Paxos consensus protocol\cite{paxos}. Despite of being mathematically proven to be correct,
-a number of implementations concludes that it wasn't designed to be implemented
-in the real shit as a consensus mechanizme. It's also hard af at least the want some people say.
-
-There's an edge case for paxos consensus protocol which in its essense is used for
-state machine replication which requeirs a workaround. Unlike Zab, a protocol used
-in zookeeper\cite{zookeeper}, which doesn't require a workaround. The workaround results in poor
-performance\cite{zap}.
-
+Speaking of actual engine implementaion, Clickhouse source code\cite{clickhouse} defines IDatabase abstract class which defines
+requirements for database engines and there's a list of existing engines in Clickhouse, each
+of them are inhereted from IDatabase directly or stacked on different engines with the
+bottom being IDatabase.
 
 \section{Methods}
+
+Compared to existing engines, Replicated Database Engine
+would leverage zookeeper cluster. Zookeeper would be used as a synchronized
+metadata storage.
+
 Implementation of a new database engine for clickhouse requires understanding of
-the current code base related to the engines. By the date, it has several different
+the current code base related to the engines. Currently, it has several different
 engines for different needs of users. The new replicated database engine must
 obey the current requirements for database interface and bring the feature of ease
-the management of replicated tables created in the newly proposed engine.
+the management of replicated tables created in a newly proposed engine instance.
 
 In order to be sure the following patch is indeed reliable and doesn't break anything,
 software testing is used. The current test suite of clickhouse must not be
 deminished and even more it must be extentioned to cover new engine testing.
+
+Clickhouse is written in C++ language. Therefore, the new engine for Clickhouse
+must be written in the same language.
+
+To make interaction with the code base more
+rapid, ctags software might be used. Ctags produces an index file which is supported
+by most text editors. Any text editor would be sutable for writing code for Clickhouse.
+
+The primary target of compilation is Linux family of operating systems.
+In order to avoid cross-compilation, the one of the mentioned operating systems
+is needed to be installed.
 
 \section{Results}
 Final implementation of the replicated database engine expected to be compilable
