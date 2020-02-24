@@ -45,7 +45,7 @@ have more that one node running, the problem of data availablity might only be s
 using several nodes. In order to have data available in a case of node fail,
 in particular disk fail, the only way to not lose data is to have a copy of it
 somewhere. It's a common practice to fully restore all of the data
-from out of service disks by using copies. The process of copying
+from out of service disks by using copies of the data. The process of copying
 data to somewhere else and use it in a case of a need is called data replication.
 
 Data replication has its merits, however it makes application which supports it more
@@ -65,7 +65,7 @@ keyword supported.
 
 Clickhouse handles replication by using replicated tree family of table engines.
 However, it's still problematic for users to maintain replicas. One of the
-main disadvantages of such an approach is no automatic recovery after a node fail exists.
+main disadvantages of the current approach is no automatic recovery after a node fail exists.
 Users have to manualy restore replicas which is a redundant work.
 
 This paper proposes a solution for Clickhouse replication problem by using Replicated
@@ -89,8 +89,20 @@ Zap protocol which is desinged for primary-backup systems. Such protocol is used
 Zookeeper\cite{zookeeper}. Luckily, Zookeeper is supported by Clickhouse, and therefore
 it's possible to use it as a node coordination mechanism.
 
-Speaking of actual engine implementaion, Clickhouse source code\cite{clickhouse} defines IDatabase abstract class which defines
-requirements for database engines and there's a list of existing engines in Clickhouse, each
+Zookeeper API allows one to create nodes (znodes) in a tree. A node might contain some data.
+Tree structure reminds a file system, with nodes being similar to files.
+Despite of being similar to a distributed file system, Zookeeper has diffent purpose.
+First of all, it's a service for coordinating process of distributed applications.
+This design decision was taken becouse of several reasons. Using file system like
+structure it's easier to serve different applications having just only one Zookeeper cluster
+available. Furthermore, the one application can use Zookeeper sub path in a tree
+and inside the sub path have its own sub pathes for different needs.
+
+Clickhouse has its own wrappers to interact with Zookeeper.
+
+Speaking of actual engine implementaion, Clickhouse source code\cite{clickhouse}
+defines IDatabase abstract class which has
+requirements for database engines. And there's a list of existing engines in Clickhouse, each
 of them are inhereted from IDatabase directly or stacked on different engines with the
 bottom being IDatabase.
 
@@ -172,8 +184,15 @@ is defined by the end user. The cluster must be a subset of nodes running the re
 databases of a common prefix.
 
 \section{Conclusion}
-Proposed implementation of the engine allows to significantly(up to none) eliminate
-needed efforts for managing replicated tables in clickhouse.
+Proposed implementation of the engine allows to eliminate
+currently needed efforts from users for managing replicated tables in Clickhouse.
+
+Proposed methods allow to implement the engine so that it would fit the current
+code base.
+
+Methods provided in this paper should guarantee that adding Replicated Database
+Engine is a safe update in terms of backwards compatibility, and doesn't break 
+the existing quilities of Clickhouse. Nor does it reduce performance.
 
 
 %\section{Ease of Use}
