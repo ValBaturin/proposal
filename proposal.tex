@@ -44,22 +44,22 @@ store and analyse big chuncks of data. Altough, it is not necessary to actually
 have more that one node running, the problem of data availablity might only be solved
 using several nodes. In order to have data available in a case of node fail,
 in particular disk fail, the only way to not lose data is to have a copy of it
-somewhere. It's a common practice to fully restore all of the data
+somewhere. It's a common practice to fully restore all of the data % написано поебаному
 from out of service disks by using copies of the data. The process of copying
 data to somewhere else and use it in a case of a need is called data replication.
 
 Data replication has its merits, however it makes application which supports it more
 complex in many ways.
-An example of a complication is a node coordination, which will be discussed later.
+An example of a complication is a node coordination, which will be discussed later. % complication - есть такое слово?
 
 From the user point of view Clickhouse is a database managment system.
-Users might not know to exactly data is processed and stored as long as they have
+Users might not know to exactly data is processed and stored as long as they have % Users might not know to exactly data is processed-- wtf?
 an access to it.
 In spite of that, users need to be sure that their data is stored somewhere
-reliably and in a case of emergency, such as a disk failure, and the data will be
+reliably and in a case of emergency, such as a disk failure, and the data will be % второе and -- непонятно что значит
 available later and not lost.
 
-Speaking of replication, the actual bytes that have to be replicated are incapsulated
+Speaking of replication, the actual bytes that have to be replicated are incapsulated % абзац из ниоткуда, херня, нет введения, ни с того ни с сего "у нас есть ключевое слово "репликация"
 by several layers of abstractions from disk drivers to client CLI with a replicate
 keyword supported.
 
@@ -74,7 +74,7 @@ of an actual data and responsible for storing a metadata of tables either persis
 in-memory. Managing the same database from different nodes requires thought-out node coordination.
 
 \section{Literature Review}
-In the world of distributing computing node coordination was
+In the world of distributing computing node coordination was %  distributing computing 
 always a severe problem. The problem reduces to a consensus
 problem, which can be solved using concensus protocol. The first consensus
 protocol which was proven and explained is Paxos\cite{paxos}.
@@ -83,8 +83,8 @@ However, there's an edge case for Paxos consensus protocol which in its essense 
 state machine replication which requeirs a workaround\cite{zap}. Unfortunatly, the workaround
 results in poor performance. 
 
-The only sutable solution to still maintain performace is to use different approach
-rather that state machine replication. One of the discovered alternatives is to use
+The only sutable solution to still maintain performace is to use different approach % still. Сам абзац как будто ни о чём -- вначале - у нас есть проблема, в конце - проблемы на самом деле нет hail to zookeeper
+rather that state machine replication. One of the discovered alternatives is to use % is to use
 Zap protocol which is desinged for primary-backup systems. Such protocol is used in
 Zookeeper\cite{zookeeper}. Luckily, Zookeeper is supported by Clickhouse, and therefore
 it's possible to use it as a node coordination mechanism.
@@ -94,16 +94,16 @@ Tree structure reminds a file system, with nodes being similar to files.
 Despite of being similar to a distributed file system, Zookeeper has a diffent purpose.
 First of all, it's a service for coordinating processes of distributed applications.
 This design decision was taken because of several reasons. Using a file system like
-structure it's easier to serve different applications having just only one Zookeeper cluster
+structure it's easier to serve different applications having just only one Zookeeper cluster % it's --> is
 available. Furthermore, the one application can use Zookeeper sub path in a tree
 and inside the sub path have its own sub pathes for different needs.
 
-Clickhouse has its own wrappers to interact with Zookeeper.
+Clickhouse has its own wrappers to interact with Zookeeper. % куда это предложение относится? к чему? о чём оно? ниже ты пишешь о том, что в клике уже есть реализации движков, что, исходя из этого предложения, подразумевает, что зукипер каким-то образом используется, задействован через обёртку. Но ещё ниже ты пишешь Replicated Database Engine would leverage zookeeper cluster, а обычные движки wouldn't leverage? зачем тогда зукипер?
 
 Speaking of actual engine implementaion, Clickhouse source code\cite{clickhouse}
 defines IDatabase abstract class which has
 requirements for database engines. And there's a list of existing engines in Clickhouse, each
-of them are inhereted from IDatabase directly or stacked on different engines with the
+of them are inhereted from IDatabase directly or stacked on different engines with the % each of them are... -> each is...
 bottom being IDatabase.
 
 \section{Methods}
