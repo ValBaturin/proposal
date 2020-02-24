@@ -54,9 +54,9 @@ An example of a complication is a node coordination, which will be discussed lat
 
 From the user point of view Clickhouse is a database managment system.
 Users might not know to exactly data is processed and stored as long as they have
-an access to it.
+an interface to interact with it using a client such as read-eval-print loop or an API endpoint.
 In spite of that, users need to be sure that their data is stored somewhere
-reliably and in a case of emergency, such as a disk failure, and the data will be
+reliably and in a case of emergency, such as a disk failure, the data can be restored so it will be
 available later and not lost.
 
 Speaking of replication, the actual bytes that have to be replicated are incapsulated
@@ -74,7 +74,7 @@ of an actual data and responsible for storing a metadata of tables either persis
 in-memory. Managing the same database from different nodes requires thought-out node coordination.
 
 \section{Literature Review}
-In the world of distributing computing node coordination was
+In the world of distributed computing node coordination was
 always a severe problem. The problem reduces to a consensus
 problem, which can be solved using concensus protocol. The first consensus
 protocol which was proven and explained is Paxos\cite{paxos}.
@@ -103,7 +103,7 @@ Clickhouse has its own wrappers to interact with Zookeeper.
 Speaking of actual engine implementaion, Clickhouse source code\cite{clickhouse}
 defines IDatabase abstract class which has
 requirements for database engines. And there's a list of existing engines in Clickhouse, each
-of them are inhereted from IDatabase directly or stacked on different engines with the
+of them is inhereted from IDatabase directly or stacked on different engines with the
 bottom being IDatabase.
 
 \section{Methods}
